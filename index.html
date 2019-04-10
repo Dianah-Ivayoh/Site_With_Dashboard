@@ -1,0 +1,166 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../../../favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <title>Login Page</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/boot.css" rel="stylesheet">
+
+   <style>
+   body, html {
+    height: 100%;
+    margin: 0;
+   }
+
+.form-control {
+  font-family: "FontAwesome"
+}
+body {font-family: Arial;}
+
+/* Style the tab */
+.tab {
+    overflow: hidden;
+ padding: 0;
+ margin: 0;
+    background-color:#000033;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+    background-color: inherit;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 20px 20px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+
+/* Create an active/current tablink class */
+.tab button.active {
+  
+    border-bottom: 4px solid #007bff;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 50px 12px;
+    border-top: none;
+}
+
+   </style>
+  </head>
+
+  <body>    
+    
+       <div class="responsive container-fluid  " 
+       style=" background-image:url(images/login_page_background.png);background-size:cover;  
+       background-position: center;height: 100%;
+       align-items: center;
+    justify-content: space-around;
+    display: flex;">
+                
+  
+       
+                <div class=" container col-sm-12 col-md-6 text-center px-0" 
+                style="background-color: #F0F3F4  ;">
+
+<div class="tab">
+    <span ><img src="images/av.png" style="width:65px;float: left;margin-left:15px;"></span>
+    <span class="mb-1">
+            <button class="tablinks active" id="defaultOpen" onclick="openCity(event, 'Paris')"style="float:right">
+                <span style="color:white;font-size: 13px;">Login</span></button>
+      </span>
+ <span class="mb-1"> 
+     <button class="tablinks" onclick="openCity(event, 'London')"style="float:right">
+        <span style="font-weight:100;font-size: 13px; ;color:white">Register</span></button>
+  </span>
+ 
+
+
+
+</div>
+
+<div id="London" class="tabcontent">
+ 
+  <form>
+        <div style="margin-bottom:60px ">
+         <h1 >Welcome new user!</h1>
+       </div>
+       <div class="container" style="width:60%;">
+            <input style="margin-bottom: 5px;border-radius: 25px"  class="form-control" type="text" placeholder="&#61447;     Username" required autofocus>
+       </div>
+       <div class="container" style="width:60%;">
+         <input style="margin-bottom: 5px;border-radius: 25px"  class="form-control" type="email" placeholder="&#xf0e0;    Email address" required autofocus>
+         </div>
+
+         <div class="container" style="width:60%;">
+         <input style="margin-bottom: 60px;border-radius: 25px;color:red" class="form-control" type="password" placeholder="&#61475;     Password" required>
+       </div>
+
+         <div class="container" style="width:40%;">
+         <button class="btn btn-primary btn-block" style="border-radius: 25px"type="submit">Enter</button>
+       </div>
+   </form> 
+</div>
+
+<div id="Paris" class="tabcontent">
+  <form>
+        <div style="margin-bottom:60px ">
+ <span style="font-weight:-100;font-size: 26px;">
+    <span style="color:#9098a0;">Welcome</span><span style="color:#007bff;"> back!</span>
+</span>
+       </div>
+       <div class="container" style="width:60%;">
+    <input style="margin-bottom: 5px;border-radius: 25px" class="form-control" type="text" placeholder="&#61447;     Username" required autofocus>
+    </div>
+    <div class="container" style="width:60%;">
+         <input style="margin-bottom: 60px; border-radius: 25px" class="form-control" type="password" placeholder="&#61475;     Password" required>
+       </div>
+
+         <div class="container" style="width:40%;">
+         <button class="btn btn-primary btn-block" style="border-radius: 25px"type="submit">Enter</button>
+       </div>
+   </form> 
+</div>
+
+
+
+<script>
+function openCity(evt, cityName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(cityName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+document.getElementById("defaultOpen").click();
+</script>
+     
+                        
+                           
+                        
+                        </div>
+ 
+ 
+
+</div><!--end of background container-->
+
+  </body>
+</html>

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<meta https-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <!-- Canonical SEO -->
+    <link rel="canonical" href="https://www.creative-tim.com/product/full-calendar"/>
+
+    <meta name="keywords" content="creative tim, calendar, calendar plugin, twitter bootstrap, bootstrap, jquery plugin, bootstrap plugin, beautiful calendar, minimal calendar, ios7 calendar, slick calendar">
+    <meta name="description" content="FullCalendar is a jQuery plugin with a beautiful interface made by Creative Tim. ">
+
+    <!-- Schema.org markup for Google+ -->
+    <meta itemprop="name" content="FullCalendar by Creative Tim">
+    <meta itemprop="description" content="FullCalendar is a jQuery plugin with a beautiful interface made by Creative Tim.">
+    <meta itemprop="image" content="https://s3.amazonaws.com/creativetim_bucket/products/11/opt_full_calendar_thumbnail3.jpg">
+
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@creativetim">
+    <meta name="twitter:title" content="FullCalendar by Creative Tim">
+    <meta name="twitter:description" content="FullCalendar is a jQuery plugin with a beautiful interface made by Creative Tim.">
+    <meta name="twitter:creator" content="@creativetim">
+    <meta name="twitter:image" content="https://s3.amazonaws.com/creativetim_bucket/products/11/opt_full_calendar_thumbnail3.jpg">
+
+    <!-- Open Graph data -->
+    <meta property="og:title" content="FullCalendar by Creative Tim" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://demos.creative-tim.com/fullcalendar" />
+    <meta property="og:image" content="https://s3.amazonaws.com/creativetim_bucket/products/11/opt_full_calendar_thumbnail3.jpg" />
+    <meta property="og:description" content="FullCalendar is a jQuery plugin with a beautiful interface made by Creative Tim." />
+    <meta property="og:site_name" content="Creative Tim" />
+
+<link href='../css/q.css' rel='stylesheet' />
+<link href='../css/q1.css' rel='stylesheet' media='print' />
+<script src='../js/q.js' type="text/javascript"></script>
+<script src='../js/q1.js' type="text/javascript"></script>
+<script src='../js/q2.js' type="text/javascript"></script>
+<script>
+
+	$(document).ready(function() {
+	    var date = new Date();
+		var d = date.getDate();
+		var m = date.getMonth();
+		var y = date.getFullYear();
+
+		/*  className colors
+
+		className: default(transparent), important(red), chill(pink), success(green), info(blue)
+
+		*/
+
+
+		/* initialize the external events
+		-----------------------------------------------------------------*/
+
+		$('#external-events div.external-event').each(function() {
+
+			// create an Event Object (https://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
+			// it doesn't need to have a start or end
+			var eventObject = {
+				title: $.trim($(this).text()) // use the element's text as the event title
+			};
+
+			// store the Event Object in the DOM element so we can get to it later
+			$(this).data('eventObject', eventObject);
+
+			// make the event draggable using jQuery UI
+			$(this).draggable({
+				zIndex: 999,
+				revert: true,      // will cause the event to go back to its
+				revertDuration: 0  //  original position after the drag
+			});
+
+		});
+
+
+		/* initialize the calendar
+		-----------------------------------------------------------------*/
+
+		var calendar =  $('#calendar').fullCalendar({
+			header: {
+				left: 'title',
+				center: 'agendaDay,agendaWeek,month',
+				right: 'prev,next today'
+			},
+			editable: true,
+			firstDay: 1, //  1(Monday) this can be changed to 0(Sunday) for the USA system
+			selectable: true,
+			defaultView: 'month',
+
+			axisFormat: 'h:mm',
+			columnFormat: {
+                month: 'ddd',    // Mon
+                week: 'ddd d', // Mon 7
+                day: 'dddd M/d',  // Monday 9/7
+                agendaDay: 'dddd d'
+            },
+            titleFormat: {
+                month: 'MMMM yyyy', // September 2009
+                week: "MMMM yyyy", // September 2009
+                day: 'MMMM yyyy'                  // Tuesday, Sep 8, 2009
+            },
+			allDaySlot: false,
+			selectHelper: true,
+			select: function(start, end, allDay) {
+				var title = prompt('Event Title:');
+				if (title) {
+					calendar.fullCalendar('renderEvent',
+						{
+							title: title,
+							start: start,
+							end: end,
+							allDay: allDay
+						},
+						true // make the event "stick"
+					);
+				}
+				calendar.fullCalendar('unselect');
+			},
+			droppable: true, // this allows things to be dropped onto the calendar !!!
+			drop: function(date, allDay) { // this function is called when something is dropped
+
+				// retrieve the dropped element's stored Event Object
+				var originalEventObject = $(this).data('eventObject');
+
+				// we need to copy it, so that multiple events don't have a reference to the same object
+				var copiedEventObject = $.extend({}, originalEventObject);
+
+				// assign it the date that was reported
+				copiedEventObject.start = date;
+				copiedEventObject.allDay = allDay;
+
+				// render the event on the calendar
+				// the last `true` argument determines if the event "sticks" (https://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
+				$('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
+
+				// is the "remove after drop" checkbox checked?
+				if ($('#drop-remove').is(':checked')) {
+					// if so, remove the element from the "Draggable Events" list
+					$(this).remove();
+				}
+
+			},
+
+			events: [
+				{
+					title: 'All Day Event',
+					start: new Date(y, m, 1)
+				},
+				{
+					id: 999,
+					title: 'Repeating Event',
+					start: new Date(y, m, d-3, 16, 0),
+					allDay: false,
+					className: 'info'
+				},
+				{
+					id: 999,
+					title: 'Repeating Event',
+					start: new Date(y, m, d+4, 16, 0),
+					allDay: false,
+					className: 'info'
+				},
+				{
+					title: 'Meeting',
+					start: new Date(y, m, d, 10, 30),
+					allDay: false,
+					className: 'important'
+				},
+				{
+					title: 'Lunch',
+					start: new Date(y, m, d, 12, 0),
+					end: new Date(y, m, d, 14, 0),
+					allDay: false,
+					className: 'important'
+				},
+				{
+					title: 'Birthday Party',
+					start: new Date(y, m, d+1, 19, 0),
+					end: new Date(y, m, d+1, 22, 30),
+					allDay: false,
+				},
+				{
+					title: 'Click for Google',
+					start: new Date(y, m, 28),
+					end: new Date(y, m, 29),
+					url: 'https://google.com/',
+					className: 'success'
+				}
+			],
+		});
+
+
+	});
+
+</script>
+<style>
+
+	body {
+		margin-top: 40px;
+		text-align: center;
+		font-size: 14px;
+		font-family: "Helvetica Nueue",Arial,Verdana,sans-serif;
+		background-color: #DDDDDD;
+		}
+
+	#wrap {
+		width: 1100px;
+		margin: 0 auto;
+		}
+
+	#external-events {
+		float: left;
+		width: 150px;
+		padding: 0 10px;
+		text-align: left;
+		}
+
+	#external-events h4 {
+		font-size: 16px;
+		margin-top: 0;
+		padding-top: 1em;
+		}
+
+	.external-event { /* try to mimick the look of a real event */
+		margin: 10px 0;
+		padding: 2px 4px;
+		background: #3366CC;
+		color: #fff;
+		font-size: .85em;
+		cursor: pointer;
+		}
+
+	#external-events p {
+		margin: 1.5em 0;
+		font-size: 11px;
+		color: #666;
+		}
+
+	#external-events p input {
+		margin: 0;
+		vertical-align: middle;
+		}
+
+	#calendar {
+/* 		float: right; */
+        margin: 0 auto;
+		width: 900px;
+		background-color: #FFFFFF;
+		  border-radius: 6px;
+        box-shadow: 0 1px 2px #C3C3C3;
+		}
+
+</style>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NKDMSK6');</script>
+<!-- End Google Tag Manager -->
+
+ <!-- Bootstrap core CSS -->
+ <link href="../css/boot.css" rel="stylesheet">
+
+ <!-- Custom styles for this template -->
+ <link href="../css/dashboard.css" rel="stylesheet">
+
+
+<!-- using CDN for Bootstrap4 as the project currently depends on Bootstrap 3 -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+<link rel="icon" href="../../../../favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<style>
+  body {
+    margin: 40px 10px;
+    padding: 0;
+    font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+    font-size: 14px;
+  }
+  #calendar {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+  <div id='calendar'></div>
+
+</body>
+</html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../../../favicon.ico">
+
+    <title>Dashboard Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../css/boot.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../css/dashboard.css" rel="stylesheet">
+
+ <!-- Font Awesome JS -->
+ <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" 
+ integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" 
+ crossorigin="anonymous"></script>
+ <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" 
+ integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" 
+ crossorigin="anonymous"></script>
+
+<style>
+.d-div-charts{
+background-color:yellow;
+padding: 10px;
+
+}
+</style>
+  </head>
+  <body>
+  <div class="wrapper">
+   <!-- Sidebar  -->
+      <nav id="sidebar">
+          <div class="sidebar-header" style="width:100%;">
+             <img src="../images/a.png">
+              
+          </div>
+  
+          <ul class="nav flex-column">
+            
+          <li class="nav-item">
+            
+            <a class="nav-link  py-3 pl-4" href="home.html" >
+              <span data-feather="home" style="color: #007bff;"></span>
+             Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-3 pl-4" href="work_flow.html"style="color:white">
+              <span data-feather="file" style="color: #007bff;"></span>
+              Workflow 
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-3 pl-4 " href="statistics.html" style="color:white">
+              <span data-feather="bar-chart-2" style="color: #007bff;"></span>
+              Statistics
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active py-3 pl-4" href="calendar.html" style="color:white">
+              <span data-feather="calendar" style="color: #007bff;"></span>
+              Calendar <span class="sr-only">(current)</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-3 pl-4 " href="users.html" style="color:white">
+              <span data-feather="user" style="color: #007bff;"></span>
+              Users
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-3 pl-4" href="#" style="color:white">
+              <span data-feather="settings" style="color: #007bff;"></span>
+              Settings
+            </a>
+          </li>
+        </ul>
+  
+      </nav>
+  
+      <!-- Page Content  -->
+      <div id="content container-fluid" style="background-color:#EAE7D6  ;width: 100%;">
+        
+          <nav class="navbar navbar-expand-md navbar-light bg-light mb-4">
+              <div class="container-fluid m-0 px-1" >
+                <button type="button" id="sidebarCollapse" class="btn" >
+                    <i class="fa fa-caret-left" style="font-size:10px;color: blue;"></i>
+                    <i class="fa fa-bars" style="font-size:20px;color:black"></i>    
+                  </button>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" 
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"><i class="fa fa-bars" style="font-size:30px;color:red"></i></span>
+                </button>
+            
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+              
+                  <!-- Left nav -->
+                  <ul class="nav navbar-nav mr-auto ">
+                    <li class="nav-item my-3 my-md-0">
+                      <a href="#">
+                        <i  class="fa fa-search" style="font-size:20px;margin-left: 20px;"></i>
+                      </a>
+                    </li>    
+                  </ul>
+            
+
+                  <!-- Right nav -->
+                  <ul class="nav navbar-toolbar navbar-right navbar-toolbar-right mx-4" >
+
+
+<!-- add project button -->
+
+<li class="nav-item">
+  <a href="#" class=" nav-link btn-primary  py-1 px-2 " style="border-radius: 25px;margin-top: 5px;margin-right: 20px;">
+    <span class="fa fa-plus"></span>
+    <span>Add Project</span>
+  </a>
+</li>
+ 
+                    <!-- messages -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" data-toggle="dropdown" href="javascript:void(0)" title="Messages" 
+                        aria-expanded="false" data-animation="slide-bottom" role="button">
+                        <i class="fa fa-envelope" aria-hidden="true" style="font-size:20px;"></i>
+                        <sup><span class="badge badge-pill badge-info" style="position:relative;top: -5px;left: -11px;">4</span></sup>
+                      </a>
+                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-media" role="menu">
+                          <div class="dropdown-menu-header" role="presentation">
+                            <h5>MESSAGES</h5>
+                            <span class="badge badge-round badge-info">New 3</span>
+                          </div>
+    
+                          <div class="list-group" role="presentation">
+                            <div data-role="container">
+                              <div data-role="content">
+                                <a class="list-group-item" href="javascript:void(0)" role="menuitem">
+                                  <div class="media">
+                                    <div class="pr-10">
+                                      <span class="avatar avatar-sm avatar-online">
+                                        <img class="imgs" src="../../global/portraits/2.jpg" alt="...">
+                                        <i></i>
+                                      </span>
+                                    </div>
+                                    <div class="media-body">
+                                      <h6 class="media-heading">Mary Adams</h6>
+                                      <div class="media-meta">
+                                        <time datetime="2018-06-17T20:22:05+08:00">30 minutes ago</time>
+                                      </div>
+                                      <div class="media-detail">Anyways, i would like just do it</div>
+                                    </div>
+                                  </div>
+                                </a>
+                                <a class="list-group-item" href="javascript:void(0)" role="menuitem">
+                                  <div class="media">
+                                    <div class="pr-10">
+                                      <span class="avatar avatar-sm avatar-off">
+                                        <img class="imgs"src="../../global/portraits/3.jpg" alt="...">
+                                        <i></i>
+                                      </span>
+                                    </div>
+                                    <div class="media-body">
+                                      <h6 class="media-heading">Caleb Richards</h6>
+                                      <div class="media-meta">
+                                        <time datetime="2018-06-17T12:30:30+08:00">12 hours ago</time>
+                                      </div>
+                                      <div class="media-detail">I checheck the document. But there seems</div>
+                                    </div>
+                                  </div>
+                                </a>
+                                <a class="list-group-item" href="javascript:void(0)" role="menuitem">
+                                  <div class="media">
+                                    <div class="pr-10">
+                                      <span class="avatar avatar-sm avatar-busy">
+                                        <img class="imgs" src="../../global/portraits/4.jpg" alt="...">
+                                        <i></i>
+                                      </span>
+                                    </div>
+                                    <div class="media-body">
+                                      <h6 class="media-heading">June Lane</h6>
+                                      <div class="media-meta">
+                                        <time datetime="2018-06-16T18:38:40+08:00">2 days ago</time>
+                                      </div>
+                                      <div class="media-detail">Lorem ipsum Id consectetur et minim</div>
+                                    </div>
+                                  </div>
+                                </a>
+                                <a class="list-group-item" href="javascript:void(0)" role="menuitem">
+                                  <div class="media">
+                                    <div class="pr-10">
+                                      <span class="avatar avatar-sm avatar-away">
+                                        <img class="imgs" src="../../global/portraits/5.jpg" alt="...">
+                                        <i></i>
+                                      </span>
+                                    </div>
+                                    <div class="media-body">
+                                      <h6 class="media-heading">Edward Fletcher</h6>
+                                      <div class="media-meta">
+                                        <time datetime="2018-06-15T20:34:48+08:00">3 days ago</time>
+                                      </div>
+                                      <div class="media-detail">Dolor et irure cupidatat commodo nostrud nostrud.</div>
+                                    </div>
+                                  </div>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="dropdown-menu-footer" role="presentation">
+                            <a class="dropdown-menu-footer-btn" href="javascript:void(0)" role="button">
+                            <i class="icon wb-settings" aria-hidden="true"></i>
+                          </a>
+                            <a class="dropdown-item" href="javascript:void(0)" role="menuitem">
+                            See all messages
+                          </a>
+                          </div>
+                        </div>
+                      </li>
+                    <!-- messagesend -->
+
+                    <!-- notifications -->
+                    <li class="nav-item dropdown">
+                          <a class="nav-link" data-toggle="dropdown" href="javascript:void(0)" title="Notifications" aria-expanded="false" data-animation="slide-bottom" role="button">
+                          <i class="fa fa-bell" aria-hidden="true" style="font-size:20px;"></i>
+                          <sup><span class="badge badge-pill badge-danger" style="position:relative;top: -5px;left: -11px;">5</span></sup>
+                        </a>
+                          <div class="dropdown-menu dropdown-menu-right dropdown-menu-media" role="menu">
+                            <div class="dropdown-menu-header">
+                              <h5>NOTIFICATIONS</h5>
+                              <span class="badge badge-round badge-danger">New 5</span>
+                            </div>
+      
+                            <div class="list-group">
+                              <div data-role="container">
+                                <div data-role="content">
+                                  <a class="list-group-item dropdown-item" href="javascript:void(0)" role="menuitem">
+                                    <div class="media">
+                                      <div class="pr-10">
+                                        <i class="icon wb-order bg-red-600 white icon-circle" aria-hidden="true"></i>
+                                      </div>
+                                      <div class="media-body">
+                                        <h6 class="media-heading">A new order has been placed</h6>
+                                        <time class="media-meta" datetime="2018-06-12T20:50:48+08:00">5 hours ago</time>
+                                      </div>
+                                    </div>
+                                  </a>
+                                  <a class="list-group-item dropdown-item" href="javascript:void(0)" role="menuitem">
+                                    <div class="media">
+                                      <div class="pr-10">
+                                        <i class="icon wb-user bg-green-600 white icon-circle" aria-hidden="true"></i>
+                                      </div>
+                                      <div class="media-body">
+                                        <h6 class="media-heading">Completed the task</h6>
+                                        <time class="media-meta" datetime="2018-06-11T18:29:20+08:00">2 days ago</time>
+                                      </div>
+                                    </div>
+                                  </a>
+                                  <a class="list-group-item dropdown-item" href="javascript:void(0)" role="menuitem">
+                                    <div class="media">
+                                      <div class="pr-10">
+                                        <i class="icon wb-settings bg-red-600 white icon-circle" aria-hidden="true"></i>
+                                      </div>
+                                      <div class="media-body">
+                                        <h6 class="media-heading">Settings updated</h6>
+                                        <time class="media-meta" datetime="2018-06-11T14:05:00+08:00">2 days ago</time>
+                                      </div>
+                                    </div>
+                                  </a>
+                                  <a class="list-group-item dropdown-item" href="javascript:void(0)" role="menuitem">
+                                    <div class="media">
+                                      <div class="pr-10">
+                                        <i class="icon wb-calendar bg-blue-600 white icon-circle" aria-hidden="true"></i>
+                                      </div>
+                                      <div class="media-body">
+                                        <h6 class="media-heading">Event started</h6>
+                                        <time class="media-meta" datetime="2018-06-10T13:50:18+08:00">3 days ago</time>
+                                      </div>
+                                    </div>
+                                  </a>
+                                  <a class="list-group-item dropdown-item" href="javascript:void(0)" role="menuitem">
+                                    <div class="media">
+                                      <div class="pr-10">
+                                        <i class="icon wb-chat bg-orange-600 white icon-circle" aria-hidden="true"></i>
+                                      </div>
+                                      <div class="media-body">
+                                        <h6 class="media-heading">Message received</h6>
+                                        <time class="media-meta" datetime="2018-06-10T12:34:48+08:00">3 days ago</time>
+                                      </div>
+                                    </div>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="dropdown-menu-footer">
+                              <a class="dropdown-menu-footer-btn" href="javascript:void(0)" role="button">
+                              <i class="icon wb-settings" aria-hidden="true"></i>
+                            </a>
+                              <a class="dropdown-item" href="javascript:void(0)" role="menuitem">
+                              All notifications
+                            </a>
+                            </div>
+                          </div>
+                        </li> 
+                    <!-- notifications end -->
+
+
+                    <!-- profile -->
+                    <li class="nav-item dropdown ">
+                        <a class="nav-link navbar-avatar" data-toggle="dropdown" href="#" aria-expanded="false">
+                          <span class="avatar">
+                            <img class="imgs " src="../images/a.PNG" alt="...">
+                            <i></i>
+                          </span><span class="dropdown-toggle"></span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" role="menu">
+                          <a class="dropdown-item" href="javascript:void(0)" role="menuitem"><i class="icon wb-user" aria-hidden="true"></i> Profile</a>
+                          <a class="dropdown-item" href="javascript:void(0)" role="menuitem"><i class="icon wb-payment" aria-hidden="true"></i> Billing</a>
+                          <a class="dropdown-item" href="javascript:void(0)" role="menuitem"><i class="icon wb-settings" aria-hidden="true"></i> Settings</a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="javascript:void(0)" role="menuitem"><i class="icon wb-power" aria-hidden="true"></i> Logout</a>
+                        </div>
+                      </li>
+                      <!-- profile end -->
+                     
+                    </ul>
+
+              
+                </div>
+              </div>
+            </nav>       
+     
+
+          
+              <!-- Google Tag Manager (noscript) -->
+            <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKDMSK6"
+            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+            <!-- End Google Tag Manager (noscript) -->
+            <div id="wrap">
+            
+            <div id="calendar" class="fc fc-ltr"><table class="fc-header" style="width:100%"><tbody><tr><td class="fc-header-left"><span class="fc-header-title"><h2>August 2018</h2></span></td><td class="fc-header-center"><span class="fc-button fc-button-agendaDay fc-state-default fc-corner-left" unselectable="on">day</span><span class="fc-button fc-button-agendaWeek fc-state-default" unselectable="on">week</span><span class="fc-button fc-button-month fc-state-default fc-corner-right fc-state-active" unselectable="on">month</span></td><td class="fc-header-right"><span class="fc-button fc-button-prev fc-state-default fc-corner-left" unselectable="on"><span class="fc-text-arrow">‹</span></span><span class="fc-button fc-button-next fc-state-default fc-corner-right" unselectable="on"><span class="fc-text-arrow">›</span></span><span class="fc-header-space"></span><span class="fc-button fc-button-today fc-state-default fc-corner-left fc-corner-right fc-state-disabled" unselectable="on">today</span></td></tr></tbody></table><div class="fc-content" style="position: relative;"><div class="fc-view fc-view-month fc-grid" style="position:relative" unselectable="on"><div class="fc-event-container" style="position:absolute;z-index:8;top:0;left:0"><div class="fc-event fc-event-hori fc-event-draggable fc-event-start fc-event-end" style="position: absolute; left: 259px; width: 121px; top: 66px;"><div class="fc-event-inner"><span class="fc-event-title">All Day Event</span></div><div class="ui-resizable-handle ui-resizable-e">&nbsp;&nbsp;&nbsp;</div></div><div class="fc-event fc-event-hori fc-event-draggable fc-event-start fc-event-end info" style="position: absolute; left: 131px; width: 121px; top: 509px;"><div class="fc-event-inner"><span class="fc-event-time">4p</span><span class="fc-event-title">Repeating Event</span></div><div class="ui-resizable-handle ui-resizable-e">&nbsp;&nbsp;&nbsp;</div></div><div class="fc-event fc-event-hori fc-event-draggable fc-event-start fc-event-end info" style="position: absolute; left: 131px; width: 121px; top: 597px;"><div class="fc-event-inner"><span class="fc-event-time">4p</span><span class="fc-event-title">Repeating Event</span></div><div class="ui-resizable-handle ui-resizable-e">&nbsp;&nbsp;&nbsp;</div></div><div class="fc-event fc-event-hori fc-event-draggable fc-event-start fc-event-end important" style="position: absolute; left: 515px; width: 121px; top: 491px;"><div class="fc-event-inner"><span class="fc-event-time">10:30a</span><span class="fc-event-title">Meeting</span></div><div class="ui-resizable-handle ui-resizable-e">&nbsp;&nbsp;&nbsp;</div></div><div class="fc-event fc-event-hori fc-event-draggable fc-event-start fc-event-end important" style="position: absolute; left: 515px; width: 121px; top: 509px;"><div class="fc-event-inner"><span class="fc-event-time">12p</span><span class="fc-event-title">Lunch</span></div><div class="ui-resizable-handle ui-resizable-e">&nbsp;&nbsp;&nbsp;</div></div><div class="fc-event fc-event-hori fc-event-draggable fc-event-start fc-event-end" style="position: absolute; left: 643px; width: 121px; top: 491px;"><div class="fc-event-inner"><span class="fc-event-time">7p</span><span class="fc-event-title">Birthday Party</span></div><div class="ui-resizable-handle ui-resizable-e">&nbsp;&nbsp;&nbsp;</div></div><a href="https://google.com/" class="fc-event fc-event-hori fc-event-draggable fc-event-start fc-event-end success" style="position: absolute; left: 131px; width: 249px; top: 491px;"><div class="fc-event-inner"><span class="fc-event-title">Click for Google</span></div><div class="ui-resizable-handle ui-resizable-e">&nbsp;&nbsp;&nbsp;</div></a></div><table class="fc-border-separate" style="width:100%" cellspacing="0"><thead><tr class="fc-first fc-last"><th class="fc-day-header fc-mon fc-widget-header fc-first" style="width: 128px;">Mon</th><th class="fc-day-header fc-tue fc-widget-header" style="width: 128px;">Tue</th><th class="fc-day-header fc-wed fc-widget-header" style="width: 128px;">Wed</th><th class="fc-day-header fc-thu fc-widget-header" style="width: 128px;">Thu</th><th class="fc-day-header fc-fri fc-widget-header" style="width: 128px;">Fri</th><th class="fc-day-header fc-sat fc-widget-header" style="width: 128px;">Sat</th><th class="fc-day-header fc-sun fc-widget-header fc-last">Sun</th></tr></thead><tbody><tr class="fc-week fc-first"><td class="fc-day fc-mon fc-widget-content fc-other-month fc-past fc-first" data-date="2018-07-30"><div style="min-height: 106px;"><div class="fc-day-number">30</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td><td class="fc-day fc-tue fc-widget-content fc-other-month fc-past" data-date="2018-07-31"><div><div class="fc-day-number">31</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td><td class="fc-day fc-wed fc-widget-content fc-past" data-date="2018-08-01"><div><div class="fc-day-number">1</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td><td class="fc-day fc-thu fc-widget-content fc-past" data-date="2018-08-02"><div><div class="fc-day-number">2</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td><td class="fc-day fc-fri fc-widget-content fc-past" data-date="2018-08-03"><div><div class="fc-day-number">3</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td><td class="fc-day fc-sat fc-widget-content fc-past" data-date="2018-08-04"><div><div class="fc-day-number">4</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td><td class="fc-day fc-sun fc-widget-content fc-past fc-last" data-date="2018-08-05"><div><div class="fc-day-number">5</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td></tr><tr class="fc-week"><td class="fc-day fc-mon fc-widget-content fc-past fc-first" data-date="2018-08-06"><div style="min-height: 105px;"><div class="fc-day-number">6</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-tue fc-widget-content fc-past" data-date="2018-08-07"><div><div class="fc-day-number">7</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-wed fc-widget-content fc-past" data-date="2018-08-08"><div><div class="fc-day-number">8</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-thu fc-widget-content fc-past" data-date="2018-08-09"><div><div class="fc-day-number">9</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-fri fc-widget-content fc-past" data-date="2018-08-10"><div><div class="fc-day-number">10</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-sat fc-widget-content fc-past" data-date="2018-08-11"><div><div class="fc-day-number">11</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-sun fc-widget-content fc-past fc-last" data-date="2018-08-12"><div><div class="fc-day-number">12</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td></tr><tr class="fc-week"><td class="fc-day fc-mon fc-widget-content fc-past fc-first" data-date="2018-08-13"><div style="min-height: 105px;"><div class="fc-day-number">13</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-tue fc-widget-content fc-past" data-date="2018-08-14"><div><div class="fc-day-number">14</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-wed fc-widget-content fc-past" data-date="2018-08-15"><div><div class="fc-day-number">15</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-thu fc-widget-content fc-past" data-date="2018-08-16"><div><div class="fc-day-number">16</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-fri fc-widget-content fc-past" data-date="2018-08-17"><div><div class="fc-day-number">17</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-sat fc-widget-content fc-past" data-date="2018-08-18"><div><div class="fc-day-number">18</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-sun fc-widget-content fc-past fc-last" data-date="2018-08-19"><div><div class="fc-day-number">19</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td></tr><tr class="fc-week"><td class="fc-day fc-mon fc-widget-content fc-past fc-first" data-date="2018-08-20"><div style="min-height: 105px;"><div class="fc-day-number">20</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-tue fc-widget-content fc-past" data-date="2018-08-21"><div><div class="fc-day-number">21</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-wed fc-widget-content fc-past" data-date="2018-08-22"><div><div class="fc-day-number">22</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-thu fc-widget-content fc-past" data-date="2018-08-23"><div><div class="fc-day-number">23</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-fri fc-widget-content fc-past" data-date="2018-08-24"><div><div class="fc-day-number">24</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-sat fc-widget-content fc-past" data-date="2018-08-25"><div><div class="fc-day-number">25</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td><td class="fc-day fc-sun fc-widget-content fc-past fc-last" data-date="2018-08-26"><div><div class="fc-day-number">26</div><div class="fc-day-content"><div style="position: relative; height: 0px;">&nbsp;</div></div></div></td></tr><tr class="fc-week"><td class="fc-day fc-mon fc-widget-content fc-past fc-first" data-date="2018-08-27"><div style="min-height: 105px;"><div class="fc-day-number">27</div><div class="fc-day-content"><div style="position: relative; height: 36px;">&nbsp;</div></div></div></td><td class="fc-day fc-tue fc-widget-content fc-past" data-date="2018-08-28"><div><div class="fc-day-number">28</div><div class="fc-day-content"><div style="position: relative; height: 36px;">&nbsp;</div></div></div></td><td class="fc-day fc-wed fc-widget-content fc-past" data-date="2018-08-29"><div><div class="fc-day-number">29</div><div class="fc-day-content"><div style="position: relative; height: 36px;">&nbsp;</div></div></div></td><td class="fc-day fc-thu fc-widget-content fc-past" data-date="2018-08-30"><div><div class="fc-day-number">30</div><div class="fc-day-content"><div style="position: relative; height: 36px;">&nbsp;</div></div></div></td><td class="fc-day fc-fri fc-widget-content fc-today fc-state-highlight" data-date="2018-08-31"><div><div class="fc-day-number">31</div><div class="fc-day-content"><div style="position: relative; height: 36px;">&nbsp;</div></div></div></td><td class="fc-day fc-sat fc-widget-content fc-other-month fc-future" data-date="2018-09-01"><div><div class="fc-day-number">1</div><div class="fc-day-content"><div style="position: relative; height: 36px;">&nbsp;</div></div></div></td><td class="fc-day fc-sun fc-widget-content fc-other-month fc-future fc-last" data-date="2018-09-02"><div><div class="fc-day-number">2</div><div class="fc-day-content"><div style="position: relative; height: 36px;">&nbsp;</div></div></div></td></tr><tr class="fc-week fc-last"><td class="fc-day fc-mon fc-widget-content fc-other-month fc-future fc-first" data-date="2018-09-03"><div style="min-height: 105px;"><div class="fc-day-number">3</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td><td class="fc-day fc-tue fc-widget-content fc-other-month fc-future" data-date="2018-09-04"><div><div class="fc-day-number">4</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td><td class="fc-day fc-wed fc-widget-content fc-other-month fc-future" data-date="2018-09-05"><div><div class="fc-day-number">5</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td><td class="fc-day fc-thu fc-widget-content fc-other-month fc-future" data-date="2018-09-06"><div><div class="fc-day-number">6</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td><td class="fc-day fc-fri fc-widget-content fc-other-month fc-future" data-date="2018-09-07"><div><div class="fc-day-number">7</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td><td class="fc-day fc-sat fc-widget-content fc-other-month fc-future" data-date="2018-09-08"><div><div class="fc-day-number">8</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td><td class="fc-day fc-sun fc-widget-content fc-other-month fc-future fc-last" data-date="2018-09-09"><div><div class="fc-day-number">9</div><div class="fc-day-content"><div style="position: relative; height: 18px;">&nbsp;</div></div></div></td></tr></tbody></table><div class="fc-cell-overlay" style="position: absolute; z-index: 3; top: 243px; left: 768px; width: 132px; height: 106px; display: none;"></div></div></div></div>
+            
+            <div style="clear:both"></div>
+            </div>
+            
+            <script>
+              (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+              (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+              m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+              })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+            
+              ga('create', 'UA-46172202-1', 'auto');
+              ga('send', 'pageview');
+            
+            </script>
+            
+            
+            
+           
+
+
+
+              <!-- compulsory code for sidebar toggler to function -->
+              <div class="m-0 p-0" style="height:0px;width:0px" >           
+                <canvas id="doughnutChart"></canvas>
+                 <canvas class="" id="myChart" ></canvas>
+              </div>
+               <!-- compulsory code  -->
+            <!-- </main> -->
+
+      </div>
+
+    
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="../../assets/js/vendor/popper.min.js"></script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script>
+      feather.replace()
+    </script>
+
+    <!-- Graphs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+    <script>
+      var ctx = document.getElementById("myChart");
+      var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          datasets: [{
+            data: [15339, 21345, 18483, 24003, 23489, 24092, 12034],
+            lineTension: 0,
+            backgroundColor: 'transparent',
+            borderColor: '#007bff',
+            borderWidth: 4,
+            pointBackgroundColor: '#007bff'
+          }]
+        },
+        options: {
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: false
+              }
+            }]
+          },
+          legend: {
+            display: false,
+          }
+        }
+      });
+
+//doughnut
+var ctxD = document.getElementById("doughnutChart").getContext('2d');
+var myLineChart = new Chart(ctxD, {
+    type: 'doughnut',
+    data: {
+        labels: ["Red", "Green", "Yellow", "Grey", "Dark Grey"],
+        datasets: [
+            {
+                data: [300, 50, 100, 40, 120],
+                backgroundColor: ["#F7464A", "#46BFBD", "#FDB45C", "#949FB1", "#4D5360"],
+                hoverBackgroundColor: ["#FF5A5E", "#5AD3D1", "#FFC870", "#A8B3C5", "#616774"]
+            }
+        ]
+    },
+    options: {
+        responsive: true
+    }
+});
+
+
+
+$(document).ready(function () {
+
+$('#sidebarCollapse').on('click', function () {
+    $('#sidebar').toggleClass('active');
+});
+
+});
+
+    </script>
+
+<!-- SmartMenus jQuery plugin -->
+<script type="text/javascript" src="../jquery.smartmenus.js"></script>
+
+<!-- SmartMenus jQuery Bootstrap 4 Addon -->
+<script type="text/javascript" src="../addons/bootstrap-4/jquery.smartmenus.bootstrap-4.js"></script>
+
+<!-- jQuery CDN - Slim version (=without AJAX) -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<!-- Popper.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+<!-- Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+
+  </body>
+</html>
+
+
+       
+     
